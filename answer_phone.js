@@ -6,12 +6,16 @@ const { calendarTools, handleFunctionCall, formatFunctionResult } = require('./c
 const sessionManager = require('./memory/sessionManager');
 const botBehavior = require('./data/botBehavior');
 const crmService = require('./utils/crmService');
+const messagingRoutes = require('./messaging_handler'); // Роуты для WhatsApp и SMS
 
 require('dotenv').config();
 
 const app = express();
 // Middleware для парсинга данных, отправленных Twilio (включая SpeechResult)
 app.use(express.urlencoded({ extended: true }));
+
+// Подключаем роуты для WhatsApp и SMS
+app.use('/', messagingRoutes);
 
 // Инициализация Gemini API с ключом из .env
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);

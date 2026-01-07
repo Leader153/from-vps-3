@@ -1,17 +1,20 @@
 const sessions = {};
 
 /**
- * Инициализирует или сбрасывает сессию для указанного CallSid.
- * @param {string} callSid - ID звонка от Twilio
+ * Инициализирует или сбрасывает сессию для указанного ID.
+ * @param {string} sessionId - ID сессии (CallSid для голоса, номер для WhatsApp/SMS)
+ * @param {string} channel - Канал связи: 'voice', 'whatsapp', 'sms'
  */
-function initSession(callSid) {
-    if (!sessions[callSid]) {
-        sessions[callSid] = {
+function initSession(sessionId, channel = 'voice') {
+    if (!sessions[sessionId]) {
+        sessions[sessionId] = {
+            channel: channel, // Канал связи: 'voice', 'whatsapp', 'sms'
             history: [], // Массив объектов { role: 'user'|'model', parts: [{ text: '...' }] }
             pendingFunctionCalls: null, // Для хранения вызовов функций между этапами Redirect
-            gender: null // Пол собеседника: 'male', 'female' или null
+            gender: null, // Пол собеседника: 'male', 'female' или null
+            createdAt: Date.now() // Время создания сессии
         };
-        console.log(`🆕 Новая сессия создана для: ${callSid}`);
+        console.log(`🆕 Новая сессия создана для: ${sessionId} (канал: ${channel})`);
     }
 }
 
@@ -100,14 +103,23 @@ function getGender(callSid) {
     return sessions[callSid] ? sessions[callSid].gender : null;
 }
 
+/**
+ * Получает канал связи для сессии.
+ * @param {string} sessionId
+ * @returns {string} 'voice', 'whatsapp', 'sms' или null
+ */
+function getChannel(sessionId) {
+    return sessions[sessionId] ? sessions[sessionId].channel : null;
+}
+
 module.exports = {
     initSession,
     addToHistory,
-    addFunctionInteractionToHistory,
     addFunctionInteractionToHistory,
     getHistory,
     setPendingFunctionCalls,
     getAndClearPendingFunctionCalls,
     setGender,
-    getGender
+    getGender,
+    getChannel
 };
